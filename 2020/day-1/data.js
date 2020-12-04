@@ -199,4 +199,4 @@ const data = `1686
 1769
 1529`;
 
-module.exports = data;
+module.exports = data.split('\n').map((item) => parseInt(item.trim()));
