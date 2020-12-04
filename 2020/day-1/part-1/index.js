@@ -1,6 +1,4 @@
-const data = require('./data')
-  .split('\n')
-  .map((item) => parseInt(item.trim()));
+const data = require('../data');
 
 const findMatchAndMultiply = (arr, targetVal) => {
   const numStore = {};
