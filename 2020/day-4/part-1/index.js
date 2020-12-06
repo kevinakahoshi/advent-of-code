@@ -1,17 +1,4 @@
-const { error } = require('console');
 const fs = require('fs');
-
-/*
-
-
-byr:1933 hcl:# 888785
-
-Pass 0 = []
-Pass 1 = [byr: 2010 pid: #1bb4d8 eyr:2021 hgt:186cm iyr:2020 ecl:grt]
-Pass 2 = [byr: 2010 pid: #1bb4d8 eyr:2021 hgt:186cm iyr:2020 ecl:grt, pid:937877382 eyr:2029]
-Pass 3 = [byr: 2010 pid: #1bb4d8 eyr:2021 hgt:186cm iyr:2020 ecl:grt, pid:937877382 eyr:2029]
-
-*/
 
 const processArray = (strArr) => {
   const output = [];
@@ -57,7 +44,7 @@ fs.readFile('../data.txt', (err, data) => {
       if (!person.includes(requiredFields[field])) return false;
     }
     return true;
-  }).filter((bool) => bool === true).length;
+  }).filter((bool) => bool).length;
 
   console.log(results);
 });
