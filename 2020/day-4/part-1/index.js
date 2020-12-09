@@ -16,7 +16,7 @@ const processArray = (strArr) => {
       }
     }
   }
-  return output
+  return output;
 }
 
 fs.readFile('../data.txt', (err, data) => {
