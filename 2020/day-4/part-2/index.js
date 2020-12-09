@@ -1,5 +1,7 @@
 const fs = require('fs');
 
+// TODO: Finish Part 2 and figure out where things are going wrong.
+
 const processStringArray = (strArr) => {
   const output = [];
   while (strArr.length) {
