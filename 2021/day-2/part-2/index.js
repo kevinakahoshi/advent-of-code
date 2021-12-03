@@ -1,9 +1,5 @@
 const fs = require('fs');
 
-const sample = [
-  'forward 5', 'down 5', 'forward 8', 'up 3', 'down 8', 'forward 2'
-]
-
 fs.readFile('../input.txt', (err, data) => {
   const input = data.toString().trim().split('\n');
 
