@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-fs.readFile('./input.txt', (err, data) => {
+fs.readFile('../input.txt', (err, data) => {
   if (err) throw err;
   const values = data.toString().split('\n').map((val) => parseInt(val));
 
