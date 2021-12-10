@@ -4,7 +4,9 @@ const files = {
   sample: '../sample.txt',
 }
 
-fs.readFile(files.input, (err, data) => {
+const FILE = process.argv[2] || 'sample';
+
+fs.readFile(files[FILE], (err, data) => {
   if (err) throw new Error(err);
 
   const input = data.toString().trim().split('\n');
