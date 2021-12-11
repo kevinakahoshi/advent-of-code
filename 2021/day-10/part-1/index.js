@@ -55,11 +55,3 @@ fs.readFile(files[FILE], (err, data) => {
     .reduce((total, pointValue) => total + pointValue, 0)
   );
 });
-
-/*
-
-{([(<{}[<>[]}>{[]{[(<()>
-
-{([(<[}>{[]{[(<()>
-
-*/
