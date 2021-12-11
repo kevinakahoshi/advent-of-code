@@ -44,10 +44,6 @@ fs.readFile(files[FILE], (err, data) => {
     }
   }
 
-  // const converted = lowPoints.map((lowPoint) => parseInt(lowPoint) + 1);
-  // console.table(converted.reduce((total, riskLevel) => total + riskLevel, 0));
-  console.log(columnRowMapping);
-
   const findSizeOfBasin = (row, column, count) => {
     if (!input[row] || !input[row][column] || input[row][column] === '9') return count;
     const up = row - 1;
