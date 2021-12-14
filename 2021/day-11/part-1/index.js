@@ -19,25 +19,23 @@ fs.readFile(files[FILE], (err, data) => {
       )
     );
 
+  const generateKey = (row, column) => `${row}-${column}`;
+
   const octopusMemo = octopusMatrix.reduce((memo, row, rowIndex) => {
     row.forEach((octopusEnergyLevel, columnIndex) => {
-      const coordinates = `${rowIndex}-${columnIndex}`;
+      const coordinates = generateKey(rowIndex, columnIndex);
       memo[coordinates] = octopusEnergyLevel;
     });
     return memo;
   }, {});
 
   let totalFlashes = 0;
-  let steps = 100;
-
-  const generateKey = (row, column) => `${row}-${column}`;
 
   const flash = (row, column) => {
     const coordinates = generateKey(row, column);
     if (octopusMemo[coordinates] < 9) return;
 
     totalFlashes++;
-    steps--;
     octopusMemo[coordinates] = 0;
 
     const upRow = generateKey(row - 1, column);
@@ -71,19 +69,18 @@ fs.readFile(files[FILE], (err, data) => {
       const octopuses = octopusMatrix[row];
 
       for (let column = 0; column < octopuses.length; column++) {
-        const coordinates = `${row}-${column}`;
+        const coordinates = generateKey(row, column);
         octopusMemo[coordinates]++;
 
-        steps--;
-
-        if (octopusMemo[coordinates] === 9) flash(row, column);
+        if (octopusMemo[coordinates] === 10)
+          flash(row, column);
       }
     }
   }
 
-  while (steps >= 0) {
+  for (let iterations = 0; iterations < 2; iterations++) {
     updateMatrix();
   }
 
-  console.log(totalFlashes);
+  console.table(octopusMemo);
 });
