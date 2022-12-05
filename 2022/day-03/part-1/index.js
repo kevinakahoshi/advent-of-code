@@ -28,7 +28,7 @@ fs.readFile('../input.txt', (err, data) => {
   });
 
   const priorities = duplicateItems.map((item) => getPriority(item));
-
   const sum = priorities.reduce((total, priority) => total + priority, 0);
+
   console.log(sum);
 });
