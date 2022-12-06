@@ -17,6 +17,17 @@ class Stack {
   peek() {
     return this.data[this.data.length - 1];
   }
+
+  move(count) {
+    const output = [];
+
+    while (count > 0) {
+      output.push(this.data.pop());
+      count--;
+    }
+
+    return output;
+  }
 }
 
 const formatCrate = (crate) => {
@@ -46,10 +57,11 @@ const generateStacks = (crates) => {
 
 const formatInstructions = (instructions) => {
   return instructions
-    .replace('move', '')
-    .replace('from', ',')
-    .replace('to', ',')
+    .replace('move ', '')
+    .replace(' from ', ',')
+    .replace(' to ', ',')
     .split(',')
+    .filter((instructions) => instructions !== '')
     .map(Number);
 }
 
@@ -60,15 +72,19 @@ fs.readFile('../input.txt', (err, data) => {
   const crates = input.slice(0, 9);
   const stacks = generateStacks(crates);
 
-  const allInstructions = input.slice(10).map(formatInstructions);
+  const allInstructions = input
+    .slice(10)
+    .map(formatInstructions)
+    .filter((instructions) => instructions.length > 0);
 
   allInstructions.forEach(([total, from, to], index) => {
     let count = total;
 
-    while (count > 0) {
-      const crate = stacks[from - 1].pop();
-      stacks[to - 1].push(crate);
-      count--;
+    const currentStack = stacks[from - 1];
+    const stackedCrates = currentStack.move(total);
+
+    while (stackedCrates.length) {
+      stacks[to - 1].push(stackedCrates.pop());
     }
   });
 
