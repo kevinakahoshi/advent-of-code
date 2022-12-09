@@ -55,20 +55,6 @@ const createChildrenNodes = (currentDirectory, prompts) => {
   }
 }
 
-const handleLS = (currentLine, commandPrompt, currentDirectory) => {
-  const children = [];
-  const start = currentLine + 1;
-  let end = start;
-
-  while (commandPrompt[end] && !isCommand(commandPrompt[end])) {
-    children.push(commandPrompt[end]);
-    end++;
-  }
-
-  commandPrompt.splice(start, end - start);
-  createChildrenNodes(currentDirectory, children);
-}
-
 const isGoingUp = (command) => command.includes('..');
 const isGoingDown = (command) => !isGoingUp(command);
 
@@ -83,13 +69,26 @@ const moveDown = (directory, command) => {
   }
 }
 
-fs.readFile('../input.txt', (err, data) => {
-  const commandPrompt = data.toString().trim().split('\n');
+const handleLS = (currentLine, commandPrompt, currentDirectory) => {
+  const children = [];
+  const start = currentLine + 1;
+  let end = start;
 
-  const headDirectory = commandPrompt.shift().replace('$ cd ', '');
-  const head = new Node(headDirectory);
-  head.type = 'directory';
+  while (commandPrompt[end] && !isCommand(commandPrompt[end])) {
+    children.push(commandPrompt[end]);
+    end++;
+  }
 
+  commandPrompt.splice(start, end - start);
+  createChildrenNodes(currentDirectory, children);
+}
+
+const handleChangeDirectory = (command, currentDirectory) => {
+  if (isGoingUp(command)) return moveUp(currentDirectory);
+  if (isGoingDown(command)) return moveDown(currentDirectory, command);
+}
+
+const buildTree = (head, commandPrompt) => {
   let currentDirectory = head;
 
   for (let line = 0; line < commandPrompt.length; line++) {
@@ -100,16 +99,64 @@ fs.readFile('../input.txt', (err, data) => {
     }
 
     if (command.includes('cd')) {
-      if (isGoingUp(command)) {
-        currentDirectory = moveUp(currentDirectory);
-        continue;
-      }
+      currentDirectory = handleChangeDirectory(command, currentDirectory);
+    }
+  }
+}
 
-      if (isGoingDown(command)) {
-        currentDirectory = moveDown(currentDirectory, command);
-      }
+const calculateSizes = (node) => {
+  if (!node) return 0;
+
+  let total = 0;
+
+  for (const child of node.children) {
+    if (child.type === 'file') {
+      total += child.size;
+    } else {
+      const dirSize = calculateSizes(child);
+      child.setSize(dirSize);
+      total += child.size;
     }
   }
 
-  console.log(head);
+  return total;
+}
+
+const findDirectoriesUnderLimit = (head, limit = 100000) => {
+  const directories = [];
+
+  const traverse = (node) => {
+    if (node.type === 'file') return;
+    if (node.size <= limit) {
+      directories.push(node);
+    }
+
+    node.children.forEach((child) => traverse(child));
+  }
+
+  traverse(head);
+
+  return directories;
+}
+
+fs.readFile('../input.txt', (err, data) => {
+  const commandPrompt = data.toString().trim().split('\n');
+
+  const headDirectory = commandPrompt.shift().replace('$ cd ', '');
+  const head = new Node(headDirectory);
+  head.setType('directory');
+
+  buildTree(head, commandPrompt);
+
+  const size = calculateSizes(head);
+  head.setSize(size);
+
+  const directoriesUnderLimit = findDirectoriesUnderLimit(head);
+  const fileSizeTotal = directoriesUnderLimit.reduce((total, directory) => {
+    return total + directory.size;
+  }, 0);
+
+  console.table({
+    fileSizeTotal
+  });
 });
