@@ -27,8 +27,49 @@ const createValue = (val, isVisible) => {
   }
 }
 
+const getColAndRow = (key) => {
+  return key.split('|').map(Number);
+}
+
+const compareHorizontally = (grid, key) => {
+  const [col, row] = getColAndRow(key);
+  let prevLeft = col;
+  let prevRight = col;
+  let left = col - 1;
+  let right = col + 1;
+
+  while (
+    createKey(left, row) in grid ||
+    createKey(right, row) in grid
+  ) {
+    const leftKey = createKey(left, row);
+    const rightKey = createKey(right, key);
+    const leftVal = grid[leftKey];
+    const rightVal = grid[rightKey];
+
+    if (left >= prevLeft) return false;
+    if (right <= prevRight) return false;
+
+    if (createKey(left - 1, row) in grid) {
+      prevLeft = left;
+      left--;
+    }
+
+    if (createKey(right + 1, row) in grid) {
+      prevRight = right;
+      right--;
+    }
+  }
+
+  return true;
+}
+
+const compareVertically = () => {
+
+}
+
 const isVisibleFromOutside = (grid, key) => {
-  const [col, row] = key.split('|').map(Number);
+  const [col, row] = getColAndRow(key);
 
   let colTraverse = col;
 
@@ -39,6 +80,10 @@ const isVisibleFromOutside = (grid, key) => {
     const previousCol = grid[previousKey];
 
     if (currentCol.val > previousCol.val && !currentCol.isVisible) {
+      console.table({
+        value: currentCol.val,
+        key
+      });
       currentCol.isVisible = true;
     }
 
@@ -85,5 +130,5 @@ fs.readFile(sampleData, (err, data) => {
 
   Object.keys(grid).forEach((key) => isVisibleFromOutside(grid, key));
 
-  console.log(grid);
+  // console.log(grid);
 });
