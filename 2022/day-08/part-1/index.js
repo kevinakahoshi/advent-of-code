@@ -31,7 +31,11 @@ const getColAndRow = (key) => {
   return key.split('|').map(Number);
 }
 
-const compareHorizontally = (grid, key) => {
+const compareHorizontally = (direction) => {
+
+}
+
+const isHorizontallyVisible = (grid, key) => {
   const [col, row] = getColAndRow(key);
   let prevLeft = col;
   let prevRight = col;
@@ -39,26 +43,23 @@ const compareHorizontally = (grid, key) => {
   let right = col + 1;
 
   while (
-    createKey(left, row) in grid ||
-    createKey(right, row) in grid
+    (createKey(left, row) in grid ||
+      createKey(right, row) in grid) &&
+    !grid[key].isVisible
   ) {
     const leftKey = createKey(left, row);
-    const rightKey = createKey(right, key);
+    const rightKey = createKey(right, row);
     const leftVal = grid[leftKey];
     const rightVal = grid[rightKey];
 
     if (left >= prevLeft) return false;
     if (right <= prevRight) return false;
 
-    if (createKey(left - 1, row) in grid) {
-      prevLeft = left;
-      left--;
-    }
+    prevLeft = left;
+    left--;
 
-    if (createKey(right + 1, row) in grid) {
-      prevRight = right;
-      right--;
-    }
+    prevRight = right;
+    right++;
   }
 
   return true;
@@ -79,11 +80,7 @@ const isVisibleFromOutside = (grid, key) => {
     const currentCol = grid[currentKey];
     const previousCol = grid[previousKey];
 
-    if (currentCol.val > previousCol.val && !currentCol.isVisible) {
-      console.table({
-        value: currentCol.val,
-        key
-      });
+    if (previousCol.isVisible && previousCol.val < currentCol.val) {
       currentCol.isVisible = true;
     }
 
@@ -106,21 +103,58 @@ const isVisibleFromOutside = (grid, key) => {
   }
 }
 
+// const createGrid = (matrix) => {
+//   const grid = {};
+
+//   for (let row = 0; row < matrix.length; row++) {
+//     for (let col = 0; col < matrix[row].length; col++) {
+//       const key = createKey(col, row);
+//       const val = Number(matrix[row][col]);
+//       const colLength = matrix.length;
+//       const rowLength = matrix[row].length;
+//       const isVisible = markPermiter(col, colLength, row, rowLength);
+//       grid[key] = createValue(val, isVisible);
+//     }
+//   }
+
+//   return grid;
+// }
+
 const createGrid = (matrix) => {
-  const grid = {};
+  const grid = [];
 
   for (let row = 0; row < matrix.length; row++) {
+    const rowVals = [];
     for (let col = 0; col < matrix[row].length; col++) {
-      const key = createKey(col, row);
       const val = Number(matrix[row][col]);
       const colLength = matrix.length;
       const rowLength = matrix[row].length;
       const isVisible = markPermiter(col, colLength, row, rowLength);
-      grid[key] = createValue(val, isVisible);
+      rowVals.push(createValue(val, isVisible));
     }
+    grid.push(rowVals);
   }
 
   return grid;
+}
+
+const viewFromHorizontal = (row) => {
+  const [{
+    val: startVal
+  }] = row;
+
+  let max = row[0].val;
+
+  for (let col = 0; col < row.length; col++) {
+    if (row[col].val > max) {
+      row[col].isVisible = true;
+      max = row[col].val;
+    }
+  }
+}
+
+const viewFromTop = () => {
+
 }
 
 fs.readFile(sampleData, (err, data) => {
@@ -128,7 +162,14 @@ fs.readFile(sampleData, (err, data) => {
 
   const grid = createGrid(input);
 
-  Object.keys(grid).forEach((key) => isVisibleFromOutside(grid, key));
+  grid.forEach(viewFromHorizontal);
+  grid.forEach((row) => viewFromHorizontal([...row].reverse()));
+
+  console.log(grid);
+
+  // const grid = createGrid(input);
+
+  // Object.keys(grid).forEach((key) => isVisibleFromOutside(grid, key));
 
   // console.log(grid);
 });
