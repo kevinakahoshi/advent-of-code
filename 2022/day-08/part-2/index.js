@@ -146,22 +146,9 @@ fs.readFile(inputData, (err, data) => {
     })
   });
 
-
-  // grid.forEach(viewFromHorizontal);
-  // grid.forEach((row) => viewFromHorizontal([...row].reverse()));
-  // viewFromVertical(grid);
-  // viewFromVertical([...grid].reverse());
-
   const allTrees = [...grid].reduce((trees, row) => [...trees, ...row], []);
 
   console.log(Math.max(...allTrees.map(({
     scenicScore
   }) => scenicScore)));
-
-  // console.log(grid.map((row) => row.map(({
-  //   row: lR,
-  //   col,
-  //   isVisible,
-  //   ...tree
-  // }) => tree)));
 });
