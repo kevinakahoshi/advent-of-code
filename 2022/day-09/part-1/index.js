@@ -8,6 +8,8 @@ const getNextMove = (instruction) => {
   return [direction, parseInt(spaces)];
 }
 
+const createNewRow = (length) => new Array(length).fill('.');
+
 const fillRows = (grid, currentRow, method) => {
   let previousRow = currentRow - 1;
   let nextRow = currentRow + 1;
@@ -43,15 +45,18 @@ const moveLeft = (grid, currentRow, previousCol) => {
 
 const moveUp = (grid, previousRow, currentCol) => {
   if (grid[previousRow] === undefined) {
-    grid.unshift(new Array(grid[previousRow + 1].length).fill('.'));
+    const newRow = createNewRow(grid[previousRow + 1].length);
+    grid.unshift(newRow);
+    previousRow = 0;
   }
 
-  grid[0][currentCol] = 'H';
+  grid[previousRow][currentCol] = 'H';
 }
 
 const moveDown = (grid, nextRow, currentCol) => {
   if (grid[nextRow] === undefined) {
-    grid.push(new Array(grid[nextRow - 1].length).fill('.'));
+    const newRow = createNewRow(grid[nextRow - 1].length)
+    grid.push(newRow);
   }
 
   grid[nextRow][currentCol] = 'H';
