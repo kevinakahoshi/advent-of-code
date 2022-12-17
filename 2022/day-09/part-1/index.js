@@ -25,44 +25,85 @@ const fillRows = (grid, currentRow, method) => {
   }
 }
 
-const moveRight = (grid, currentRow, nextCol) => {
-  if (grid[currentRow][nextCol] === undefined) {
-    grid[currentRow].push('H');
-    fillRows(grid, currentRow, 'push');
+const assignIndex = (index) => index < 0 ? 0 : index;
+
+// const moveRight = (grid, currentRow, nextCol) => {
+//   if (grid[currentRow][nextCol] === undefined) {
+//     grid[currentRow].push('H');
+//     fillRows(grid, currentRow, 'push');
+//   } else {
+//     grid[currentRow][nextCol] = 'H';
+//   }
+// }
+
+const moveRight = (grid, current) => {
+  if (grid[current.row][current.col] === undefined) {
+    grid[current.row].push('H');
+    fillRows(grid, current.row, 'push');
   } else {
-    grid[currentRow][nextCol] = 'H';
+    grid[current.row][current.col] = 'H';
   }
 }
 
-const moveLeft = (grid, currentRow, previousCol) => {
-  if (grid[currentRow][previousCol] === undefined) {
-    grid[currentRow].unshift('H');
-    fillRows(grid, currentRow, 'unshift');
+// const moveLeft = (grid, currentRow, previousCol) => {
+//   if (grid[currentRow][previousCol] === undefined) {
+//     grid[currentRow].unshift('H');
+//     fillRows(grid, currentRow, 'unshift');
+//   } else {
+//     grid[currentRow][previousCol] = 'H';
+//   }
+// }
+
+const moveLeft = (grid, current) => {
+  if (grid[current.row][current.col] === undefined) {
+    grid[current.row].unshift('H');
+    fillRows(grid, current.row, 'unshift');
+    // current.row = assignIndex(row);
+    current.col = assignIndex(col);
   } else {
-    grid[currentRow][previousCol] = 'H';
+    grid[current.row][current.col] = 'H';
   }
 }
 
-const moveUp = (grid, previousRow, currentCol) => {
-  if (grid[previousRow] === undefined) {
-    const newRow = createNewRow(grid[previousRow + 1].length);
+// const moveUp = (grid, previousRow, currentCol) => {
+//   if (grid[previousRow] === undefined) {
+//     const newRow = createNewRow(grid[previousRow + 1].length);
+//     grid.unshift(newRow);
+//     previousRow = 0;
+//   }
+
+//   grid[previousRow][currentCol] = 'H';
+// }
+
+const moveUp = (grid, current) => {
+  if (grid[current.row] === undefined) {
+    const newRow = createNewRow(grid[current.row + 1].length);
     grid.unshift(newRow);
-    previousRow = 0;
+    current.row = 0;
   }
 
-  grid[previousRow][currentCol] = 'H';
+  grid[current.row][current.col] = 'H';
 }
 
-const moveDown = (grid, nextRow, currentCol) => {
-  if (grid[nextRow] === undefined) {
-    const newRow = createNewRow(grid[nextRow - 1].length)
+// const moveDown = (grid, nextRow, currentCol) => {
+//   if (grid[nextRow] === undefined) {
+//     const newRow = createNewRow(grid[nextRow - 1].length)
+//     grid.push(newRow);
+//   }
+
+//   grid[nextRow][currentCol] = 'H';
+// }
+
+const moveDown = (grid, current) => {
+  if (grid[current.row] === undefined) {
+    const newRow = createNewRow(grid[current.row - 1].length)
     grid.push(newRow);
   }
 
-  grid[nextRow][currentCol] = 'H';
+  grid[current.row][current.col] = 'H';
 }
 
-const checkIndex = (index) => index < 0 ? 0 : index;
+// const checkIndex = (index) => index < 0 ? 0 : index;
 
 const directionMap = {
   R: moveRight,
@@ -77,6 +118,11 @@ fs.readFile(sampleData, (err, data) => {
     ['S']
   ];
 
+  const current = {
+    row: 0,
+    col: 0
+  }
+
   let currentRow = 0;
   let currentCol = 0;
 
@@ -86,28 +132,33 @@ fs.readFile(sampleData, (err, data) => {
     for (let count = 0; count < spaces; count++) {
       switch (direction) {
         case 'R':
-          currentCol++;
+          // currentCol++;
+          current.col++;
           break;
         case 'L':
-          currentCol--;
+          // currentCol--;
+          current.col--;
           break;
         case 'U':
-          currentRow--;
+          // currentRow--;
+          current.row--;
           break;
         case 'D':
-          currentRow++;
+          // currentRow++;
+          current.col++;
           break;
       }
 
-      directionMap[direction](grid, currentRow, currentCol);
+      // directionMap[direction](grid, currentRow, currentCol);
+      directionMap[direction](grid, current);
 
-      if (currentCol < 0) {
-        currentCol = 0;
-      }
+      // if (currentCol < 0) {
+      //   currentCol = 0;
+      // }
 
-      if (currentRow < 0) {
-        currentRow = 0;
-      }
+      // if (currentRow < 0) {
+      //   currentRow = 0;
+      // }
     }
   });
 
