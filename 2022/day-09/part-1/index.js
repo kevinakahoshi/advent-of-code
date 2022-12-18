@@ -1,107 +1,115 @@
-const fs = require('fs');
+const fs = require("fs");
 
-const inputData = '../input.txt';
-const sampleData = '../sample.txt';
+const inputData = "../input.txt";
+const sampleData = "../sample.txt";
 
 const getNextMove = (instruction) => {
-  const [direction, spaces] = instruction.split(' ');
+  const [direction, spaces] = instruction.split(" ");
   return [direction, parseInt(spaces)];
-}
+};
 
-const createNewRow = (length) => new Array(length).fill('.');
+const createNewRow = (length) => new Array(length).fill(".");
+
+const hasNotBeenVisitedByTail = (space) => space !== "#";
 
 const fillRows = (grid, currentRow, method) => {
   let previousRow = currentRow - 1;
   let nextRow = currentRow + 1;
 
   while (grid[previousRow] !== undefined) {
-    grid[previousRow][method]('.');
+    grid[previousRow][method](".");
     previousRow--;
   }
 
   while (grid[nextRow] !== undefined) {
-    grid[nextRow][method]('.');
+    grid[nextRow][method](".");
     nextRow++;
   }
-}
+};
 
-const assignIndex = (index) => index < 0 ? 0 : index;
+// const assignIndex = (index) => (index < 0 ? 0 : index);
 
-// const moveRight = (grid, currentRow, nextCol) => {
-//   if (grid[currentRow][nextCol] === undefined) {
-//     grid[currentRow].push('H');
-//     fillRows(grid, currentRow, 'push');
-//   } else {
-//     grid[currentRow][nextCol] = 'H';
-//   }
-// }
-
-const moveRight = (grid, current) => {
-  if (grid[current.row][current.col] === undefined) {
-    grid[current.row].push('H');
-    fillRows(grid, current.row, 'push');
+const moveRight = (grid, currentRow, nextCol) => {
+  if (grid[currentRow][nextCol] === undefined) {
+    grid[currentRow].push(".");
+    fillRows(grid, currentRow, "push");
   } else {
-    grid[current.row][current.col] = 'H';
+    if (hasNotBeenVisitedByTail(grid[currentRow][nextCol])) {
+      grid[currentRow][nextCol] = ".";
+    }
   }
-}
+};
 
-// const moveLeft = (grid, currentRow, previousCol) => {
-//   if (grid[currentRow][previousCol] === undefined) {
-//     grid[currentRow].unshift('H');
-//     fillRows(grid, currentRow, 'unshift');
+// const moveRight = (grid, current) => {
+//   if (grid[current.row][current.col] === undefined) {
+//     grid[current.row].push('H');
+//     fillRows(grid, current.row, 'push');
 //   } else {
-//     grid[currentRow][previousCol] = 'H';
+//     grid[current.row][current.col] = 'H';
 //   }
 // }
 
-const moveLeft = (grid, current) => {
-  if (grid[current.row][current.col] === undefined) {
-    grid[current.row].unshift('H');
-    fillRows(grid, current.row, 'unshift');
-    // current.row = assignIndex(row);
-    current.col = assignIndex(col);
+const moveLeft = (grid, currentRow, previousCol) => {
+  if (grid[currentRow][previousCol] === undefined) {
+    grid[currentRow].unshift(".");
+    fillRows(grid, currentRow, "unshift");
   } else {
-    grid[current.row][current.col] = 'H';
+    if (hasNotBeenVisitedByTail(grid[currentRow][previousCol])) {
+      grid[currentRow][previousCol] = ".";
+    }
   }
-}
+};
 
-// const moveUp = (grid, previousRow, currentCol) => {
-//   if (grid[previousRow] === undefined) {
-//     const newRow = createNewRow(grid[previousRow + 1].length);
-//     grid.unshift(newRow);
-//     previousRow = 0;
+// const moveLeft = (grid, current) => {
+//   if (grid[current.row][current.col] === undefined) {
+//     grid[current.row].unshift('H');
+//     fillRows(grid, current.row, 'unshift');
+//     // current.row = assignIndex(row);
+//     current.col = assignIndex(col);
+//   } else {
+//     grid[current.row][current.col] = 'H';
 //   }
-
-//   grid[previousRow][currentCol] = 'H';
 // }
 
-const moveUp = (grid, current) => {
-  if (grid[current.row] === undefined) {
-    const newRow = createNewRow(grid[current.row + 1].length);
+const moveUp = (grid, previousRow, currentCol) => {
+  if (grid[previousRow] === undefined) {
+    const newRow = createNewRow(grid[previousRow + 1].length);
     grid.unshift(newRow);
-    current.row = 0;
+    grid[0][currentCol] = ".";
+  } else if (hasNotBeenVisitedByTail(grid[previousRow][currentCol])) {
+    grid[previousRow][currentCol] = ".";
   }
+};
 
-  grid[current.row][current.col] = 'H';
-}
-
-// const moveDown = (grid, nextRow, currentCol) => {
-//   if (grid[nextRow] === undefined) {
-//     const newRow = createNewRow(grid[nextRow - 1].length)
-//     grid.push(newRow);
+// const moveUp = (grid, current) => {
+//   if (grid[current.row] === undefined) {
+//     const newRow = createNewRow(grid[current.row + 1].length);
+//     grid.unshift(newRow);
+//     current.row = 0;
 //   }
 
-//   grid[nextRow][currentCol] = 'H';
+//   grid[current.row][current.col] = 'H';
 // }
 
-const moveDown = (grid, current) => {
-  if (grid[current.row] === undefined) {
-    const newRow = createNewRow(grid[current.row - 1].length)
+const moveDown = (grid, nextRow, currentCol) => {
+  if (grid[nextRow] === undefined) {
+    const newRow = createNewRow(grid[nextRow - 1].length);
     grid.push(newRow);
   }
 
-  grid[current.row][current.col] = 'H';
-}
+  if (hasNotBeenVisitedByTail(grid[nextRow][currentCol])) {
+    grid[nextRow][currentCol] = ".";
+  }
+};
+
+// const moveDown = (grid, current) => {
+//   if (grid[current.row] === undefined) {
+//     const newRow = createNewRow(grid[current.row - 1].length)
+//     grid.push(newRow);
+//   }
+
+//   grid[current.row][current.col] = 'H';
+// }
 
 // const checkIndex = (index) => index < 0 ? 0 : index;
 
@@ -109,56 +117,96 @@ const directionMap = {
   R: moveRight,
   L: moveLeft,
   U: moveUp,
-  D: moveDown
-}
+  D: moveDown,
+};
+
+const isMoreThanOneSpace = (head, tail) => Math.abs(head - tail) > 1;
 
 fs.readFile(sampleData, (err, data) => {
-  const input = data.toString().trim().split('\n');
-  const grid = [
-    ['S']
-  ];
+  const input = data.toString().trim().split("\n");
+  const grid = [["#"]];
 
   const current = {
     row: 0,
-    col: 0
-  }
+    col: 0,
+  };
 
   let currentRow = 0;
   let currentCol = 0;
+
+  const currentTail = {
+    row: 0,
+    col: 0,
+  };
 
   input.forEach((instruction) => {
     const [direction, spaces] = getNextMove(instruction);
 
     for (let count = 0; count < spaces; count++) {
       switch (direction) {
-        case 'R':
-          // currentCol++;
-          current.col++;
+        case "R":
+          currentCol++;
+          // current.col++;
           break;
-        case 'L':
-          // currentCol--;
-          current.col--;
+        case "L":
+          currentCol--;
+          // current.col--;
           break;
-        case 'U':
-          // currentRow--;
-          current.row--;
+        case "U":
+          currentRow--;
+          // current.row--;
           break;
-        case 'D':
-          // currentRow++;
-          current.col++;
+        case "D":
+          currentRow++;
+          // current.col++;
           break;
       }
 
-      // directionMap[direction](grid, currentRow, currentCol);
-      directionMap[direction](grid, current);
+      directionMap[direction](grid, currentRow, currentCol);
+      // directionMap[direction](grid, current);
 
-      // if (currentCol < 0) {
-      //   currentCol = 0;
-      // }
+      if (currentCol < 0) {
+        currentCol = 0;
+      }
 
-      // if (currentRow < 0) {
-      //   currentRow = 0;
-      // }
+      if (currentRow < 0) {
+        currentRow = 0;
+      }
+
+      const moreSpaceVertical = isMoreThanOneSpace(currentRow, currentTail.row);
+      const moreSpaceHorizontal = isMoreThanOneSpace(
+        currentCol,
+        currentTail.col
+      );
+
+      console.table({
+        currentRow,
+        currentCol,
+        tailRow: currentTail.row,
+        tailCol: currentTail.col,
+        moreSpaceVertical,
+        moreSpaceHorizontal,
+      });
+
+      if (moreSpaceVertical) {
+        currentTail.col = currentCol;
+        if (currentRow > currentTail.row) {
+          currentTail.row++;
+        } else {
+          currentTail.row--;
+        }
+      }
+
+      if (moreSpaceHorizontal) {
+        currentTail.row = currentRow;
+        if (currentCol > currentTail.col) {
+          currentTail.col++;
+        } else {
+          currentTail.col--;
+        }
+      }
+
+      grid[currentTail.row][currentTail.col] = "#";
     }
   });
 
