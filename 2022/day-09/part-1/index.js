@@ -27,8 +27,6 @@ const fillRows = (grid, currentRow, method) => {
   }
 };
 
-// const assignIndex = (index) => (index < 0 ? 0 : index);
-
 const moveRight = (grid, currentRow, nextCol) => {
   if (grid[currentRow][nextCol] === undefined) {
     grid[currentRow].push(".");
@@ -39,15 +37,6 @@ const moveRight = (grid, currentRow, nextCol) => {
     }
   }
 };
-
-// const moveRight = (grid, current) => {
-//   if (grid[current.row][current.col] === undefined) {
-//     grid[current.row].push('H');
-//     fillRows(grid, current.row, 'push');
-//   } else {
-//     grid[current.row][current.col] = 'H';
-//   }
-// }
 
 const moveLeft = (grid, currentRow, previousCol) => {
   if (grid[currentRow][previousCol] === undefined) {
@@ -60,17 +49,6 @@ const moveLeft = (grid, currentRow, previousCol) => {
   }
 };
 
-// const moveLeft = (grid, current) => {
-//   if (grid[current.row][current.col] === undefined) {
-//     grid[current.row].unshift('H');
-//     fillRows(grid, current.row, 'unshift');
-//     // current.row = assignIndex(row);
-//     current.col = assignIndex(col);
-//   } else {
-//     grid[current.row][current.col] = 'H';
-//   }
-// }
-
 const moveUp = (grid, previousRow, currentCol) => {
   if (grid[previousRow] === undefined) {
     const newRow = createNewRow(grid[previousRow + 1].length);
@@ -80,16 +58,6 @@ const moveUp = (grid, previousRow, currentCol) => {
     grid[previousRow][currentCol] = ".";
   }
 };
-
-// const moveUp = (grid, current) => {
-//   if (grid[current.row] === undefined) {
-//     const newRow = createNewRow(grid[current.row + 1].length);
-//     grid.unshift(newRow);
-//     current.row = 0;
-//   }
-
-//   grid[current.row][current.col] = 'H';
-// }
 
 const moveDown = (grid, nextRow, currentCol) => {
   if (grid[nextRow] === undefined) {
@@ -102,17 +70,6 @@ const moveDown = (grid, nextRow, currentCol) => {
   }
 };
 
-// const moveDown = (grid, current) => {
-//   if (grid[current.row] === undefined) {
-//     const newRow = createNewRow(grid[current.row - 1].length)
-//     grid.push(newRow);
-//   }
-
-//   grid[current.row][current.col] = 'H';
-// }
-
-// const checkIndex = (index) => index < 0 ? 0 : index;
-
 const directionMap = {
   R: moveRight,
   L: moveLeft,
@@ -122,22 +79,20 @@ const directionMap = {
 
 const isMoreThanOneSpace = (head, tail) => Math.abs(head - tail) > 1;
 
-fs.readFile(sampleData, (err, data) => {
+const countTailSpaces = (grid) => grid
+  .reduce((spaces, row) => [...spaces, ...row], [])
+  .filter((space) => space === '#').length;
+
+fs.readFile(inputData, (err, data) => {
   const input = data.toString().trim().split("\n");
-  const grid = [["#"]];
+  const grid = [
+    ["#"]
+  ];
 
-  const current = {
-    row: 0,
-    col: 0,
-  };
-
-  let currentRow = 0;
-  let currentCol = 0;
-
-  const currentTail = {
-    row: 0,
-    col: 0,
-  };
+  let headRow = 0;
+  let headCol = 0;
+  let tailRow = 0;
+  let tailCol = 0;
 
   input.forEach((instruction) => {
     const [direction, spaces] = getNextMove(instruction);
@@ -145,70 +100,60 @@ fs.readFile(sampleData, (err, data) => {
     for (let count = 0; count < spaces; count++) {
       switch (direction) {
         case "R":
-          currentCol++;
-          // current.col++;
+          headCol++;
           break;
         case "L":
-          currentCol--;
-          // current.col--;
+          headCol--;
           break;
         case "U":
-          currentRow--;
-          // current.row--;
+          headRow--;
           break;
         case "D":
-          currentRow++;
-          // current.col++;
+          headRow++;
           break;
       }
 
-      directionMap[direction](grid, currentRow, currentCol);
-      // directionMap[direction](grid, current);
+      directionMap[direction](grid, headRow, headCol);
 
-      if (currentCol < 0) {
-        currentCol = 0;
+      if (headCol < 0) {
+        headCol = 0;
+        tailCol++;
       }
 
-      if (currentRow < 0) {
-        currentRow = 0;
+      if (headRow < 0) {
+        headRow = 0;
+        tailRow++;
       }
 
-      const moreSpaceVertical = isMoreThanOneSpace(currentRow, currentTail.row);
-      const moreSpaceHorizontal = isMoreThanOneSpace(
-        currentCol,
-        currentTail.col
-      );
+      const verticalGapIsMoreThanTwo = isMoreThanOneSpace(headRow, tailRow);
+      const horizontalGapIsMoreThanTwo = isMoreThanOneSpace(headCol, tailCol);
 
-      console.table({
-        currentRow,
-        currentCol,
-        tailRow: currentTail.row,
-        tailCol: currentTail.col,
-        moreSpaceVertical,
-        moreSpaceHorizontal,
-      });
-
-      if (moreSpaceVertical) {
-        currentTail.col = currentCol;
-        if (currentRow > currentTail.row) {
-          currentTail.row++;
+      if (verticalGapIsMoreThanTwo) {
+        tailCol = headCol;
+        if (headRow > tailRow) {
+          tailRow = headRow - 1;
         } else {
-          currentTail.row--;
+          tailRow = headRow + 1;
         }
       }
 
-      if (moreSpaceHorizontal) {
-        currentTail.row = currentRow;
-        if (currentCol > currentTail.col) {
-          currentTail.col++;
+      if (horizontalGapIsMoreThanTwo) {
+        tailRow = headRow;
+        if (headCol > tailCol) {
+          tailCol = headCol - 1;
         } else {
-          currentTail.col--;
+          tailCol = headCol + 1;
         }
       }
 
-      grid[currentTail.row][currentTail.col] = "#";
+      grid[tailRow][tailCol] = "#";
     }
   });
 
+  const positionsTailVisited = countTailSpaces(grid);
+
   console.log(grid);
+  console.table({
+    positionsTailVisited
+  });
 });
