@@ -3,15 +3,6 @@ const fs = require("fs");
 const inputData = "../input.txt";
 const sampleData = "../sample.txt";
 
-/*
-'Monkey 0:',
-'  Starting items: 79, 98',
-'  Operation: new = old * 19',
-'  Test: divisible by 23',
-'    If true: throw to monkey 2',
-'    If false: throw to monkey 3'
-*/
-
 const generateItem = (level) => {
   return {
     level
@@ -45,7 +36,7 @@ const getOperation = (monkeyOperation) => {
 }
 
 const getTest = (monkeyDivisor) => {
-  const divisor = parseInt(monkeyDivisor.replace('Test: divisible by '));
+  const divisor = parseInt(monkeyDivisor.replace('Test: divisible by ', ''));
   return (value) => value % divisor === 0;
 }
 
@@ -65,6 +56,7 @@ const generateMonkeyObject = (monkey) => {
     items: getItems(items),
     operation: getOperation(operation),
     test: getTest(test),
+    sampleCount: 0,
     next: {
       ifTrue,
       ifFalse
@@ -74,7 +66,7 @@ const generateMonkeyObject = (monkey) => {
 
 const calculateWorryLevel = (current) => Math.floor(current / 3);
 
-fs.readFile(sampleData, (err, data) => {
+fs.readFile(inputData, (err, data) => {
   const input = data.toString().trim().split('\n');
   const monkeyData = [];
 
@@ -88,7 +80,7 @@ fs.readFile(sampleData, (err, data) => {
   }
 
   const monkeys = monkeyData.map(generateMonkeyObject);
-  let rounds = 1;
+  let rounds = 20;
 
   while (rounds > 0) {
     monkeys.forEach((monkey) => {
@@ -100,6 +92,7 @@ fs.readFile(sampleData, (err, data) => {
         const nextMonkeyIndex = testResults ? 'ifTrue' : 'ifFalse';
         const nextMonkey = monkey.next[nextMonkeyIndex];
 
+        monkey.sampleCount++;
         monkeys[nextMonkey].items.push(newWorryLevel);
       }
     });
@@ -107,5 +100,9 @@ fs.readFile(sampleData, (err, data) => {
     rounds--;
   }
 
-  console.log(monkeys);
+  const rankedMonkeysBySampleCount = monkeys
+    .sort((monkey1, monkey2) => monkey2.sampleCount - monkey1.sampleCount);
+  const [top, second] = rankedMonkeysBySampleCount;
+
+  console.log(top.sampleCount * second.sampleCount);
 });
