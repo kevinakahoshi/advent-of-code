@@ -6,20 +6,41 @@ const file = `../${fileName}.txt`;
 fs.readFile(file, (err, data) => {
   if (err) console.error(err);
 
-  const [idRangeStrs, availableIdStrs] = data
+  const [idRangeStrs] = data
     .toString()
     .trim()
     .split('\n\n')
     .map((val) => val.split('\n'));
-  const idRanges = idRangeStrs.map((val) => val.split('-').map(Number));
-  const availableIds = availableIdStrs.map(Number);
+  const count = idRangeStrs
+    .map((val) => val.split('-').map(Number))
+    .sort((a, b) => a.at(0) - b.at(0))
+    .reduce((ranges, currentRange) => {
+      if (!ranges.length) {
+        ranges.push(currentRange);
+        return ranges;
+      }
 
-  const count = availableIds.reduce((total, id) => {
-    const isFresh = !!idRanges.find(
-      (range) => range.at(0) <= id && id <= range.at(1)
-    );
-    return total + Number(isFresh);
-  }, 0);
+      const lastRange = ranges.at(-1);
+
+      const [cStart, cEnd] = currentRange;
+      const [lStart, lEnd] = lastRange;
+
+      if (cStart >= lStart && cStart < lEnd && cEnd > lStart && cEnd <= lEnd)
+        return ranges;
+
+      if (cStart <= lEnd && cEnd > lEnd) {
+        ranges[ranges.length - 1][1] = cEnd;
+        return ranges;
+      }
+
+      if (cStart > lEnd) {
+        ranges.push(currentRange);
+        return ranges;
+      }
+
+      return ranges;
+    }, [])
+    .reduce((total, [min, max]) => total + (max - min) + 1, 0);
 
   console.table({ count });
 });
