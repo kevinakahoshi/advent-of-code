@@ -1,6 +1,6 @@
 const fs = require('fs');
 
-const fileName = 'input';
+const fileName = 'sample';
 const file = `../${fileName}.txt`;
 
 fs.readFile(file, (err, data) => {
@@ -14,6 +14,7 @@ fs.readFile(file, (err, data) => {
 
   const indexOfS = input.at(0).indexOf('S');
   input[1][indexOfS] = '|';
+  let count = 0;
 
   for (let row = 1; row < input.length; row++) {
     for (let col = 0; col < input[row].length; col++) {
@@ -21,6 +22,7 @@ fs.readFile(file, (err, data) => {
         let localLeftCol = col - 1;
         let localRightCol = col + 1;
         let localRow = row + 1;
+        count++;
 
         while (input[localRow]?.[localLeftCol] === '.') {
           input[localRow][localLeftCol] = '|';
@@ -36,6 +38,8 @@ fs.readFile(file, (err, data) => {
       }
     }
   }
+
+  console.table({ count });
 
   const output = input.map((row) => row.join('')).join('\n');
 
