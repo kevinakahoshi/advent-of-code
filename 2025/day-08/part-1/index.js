@@ -35,18 +35,30 @@ fs.readFile(file, (err, data) => {
       coordinates.split(',').map((coordinate) => parseInt(coordinate, 10))
     );
 
-  const distances = input.map((coordinates, index) => {
-    const otherCoordinates = [
-      ...input.slice(0, index),
-      ...input.slice(index + 1),
-    ];
-    const distances = otherCoordinates.map((coorinateSet) =>
-      calculateDistance(coordinates, coorinateSet)
-    );
-    const lowest = Math.min(...distances.map(({ distance }) => distance));
+  const distances = input
+    .map((coordinates, index) => {
+      const otherCoordinates = [
+        ...input.slice(0, index),
+        ...input.slice(index + 1),
+      ];
+      const distances = otherCoordinates.map((coorinateSet) =>
+        calculateDistance(coordinates, coorinateSet)
+      );
+      const lowest = Math.min(...distances.map(({ distance }) => distance));
 
-    return distances.find(({ distance }) => distance === lowest);
-  });
+      return distances.find(({ distance }) => distance === lowest);
+    })
+    .toSorted((d1, d2) => d1.distance - d2.distance);
 
-  console.log(distances);
+  const circuits = distances.reduce((acc, d) => {
+    const c1Key = d.c1.map((c) => c.toString()).join(',');
+    const c2Key = d.c2.map((c) => c.toString()).join(',');
+    const circuit = acc.find((c) => c.includes(c2Key));
+
+    circuit ? circuit.push(c1Key) : acc.push([c1Key]);
+
+    return acc;
+  }, []);
+
+  console.log(circuits.toSorted((c1, c2) => c2.length - c1.length));
 });
