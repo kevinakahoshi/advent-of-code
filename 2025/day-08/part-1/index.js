@@ -3,7 +3,8 @@ const fs = require('fs');
 const fileName = 'sample';
 const file = `../${fileName}.txt`;
 
-const getDistancePart = (num1, num2) => Math.pow(num1 - num2, 2);
+// const getDistancePart = (num1, num2) => Math.pow(num1 - num2, 2);
+const getDistancePart = (num1, num2) => (num1 - num2) ** 2;
 
 const getDistanceRaw = (c1, c2) => {
   const [c1x, c1y, c1z] = c1;
@@ -41,14 +42,19 @@ fs.readFile(file, (err, data) => {
         ...input.slice(0, index),
         ...input.slice(index + 1),
       ];
-      const distances = otherCoordinates.map((coorinateSet) =>
+      const distancesToOtherNodes = otherCoordinates.map((coorinateSet) =>
         calculateDistance(coordinates, coorinateSet)
       );
-      const lowest = Math.min(...distances.map(({ distance }) => distance));
 
-      return distances.find(({ distance }) => distance === lowest);
+      const lowest = Math.min(
+        ...distancesToOtherNodes.map(({ distance }) => distance)
+      );
+
+      return distancesToOtherNodes.find(({ distance }) => distance === lowest);
     })
     .toSorted((d1, d2) => d1.distance - d2.distance);
+
+  // console.log(distances);
 
   const circuits = distances.reduce((acc, d) => {
     const c1Key = d.c1.map((c) => c.toString()).join(',');
